@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="MyEcho.Tests/MyEcho.Tests.csproj" />
+  <Project Path="MyEcho/MyEcho.csproj" />
+</Solution>
