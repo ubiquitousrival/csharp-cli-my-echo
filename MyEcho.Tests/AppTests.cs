@@ -52,4 +52,42 @@ public class AppTests
         Assert.That(output.ToString(), Is.Empty);
         Assert.That(error.ToString(), Does.Contain("unknown").IgnoreCase);
     }
+
+    [Test]
+    public void Run_NoArguments_EmptyStdin_ReturnsZero()
+    {
+        string[] args = Array.Empty<string>();
+        using var input = new StringReader(""); 
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        int exitCode = App.Run(args, input, output, error);
+
+        Assert.That(exitCode, Is.EqualTo(0));
+        Assert.That(output.ToString(), Is.Empty);
+        Assert.That(error.ToString(), Is.Empty);
+    }
+
+    private class FailingTextReader : TextReader
+    {
+        public override string ReadToEnd()
+        {
+            throw new IOException("Simulated I/O failure");
+        }
+    }
+
+    [Test]
+    public void Run_SystemException_OutputsToStderr_ReturnsOne()
+    {
+        string[] args = Array.Empty<string>();
+        using var input = new FailingTextReader(); 
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        int exitCode = App.Run(args, input, output, error);
+
+        Assert.That(exitCode, Is.EqualTo(1));
+        Assert.That(output.ToString(), Is.Empty);
+        Assert.That(error.ToString(), Does.Contain("my_echo: error - Simulated I/O failure"));
+    }
 }
